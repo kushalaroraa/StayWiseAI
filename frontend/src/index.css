@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply transition-colors duration-300 antialiased font-sans text-slate-800 bg-white dark:bg-slate-950;
+  }
+  
+  body.dark {
+    @apply text-slate-100 bg-slate-950;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/30 dark:border-slate-800/50 shadow-premium dark:shadow-premium-dark transition-all duration-500 ease-out;
+  }
+
+  .glass-card:hover {
+    @apply -translate-y-1.5 shadow-2xl shadow-primary-500/20 dark:shadow-primary-500/10 border-primary-500/40;
+  }
+
+  .glass-nav {
+    @apply bg-white/5 dark:bg-slate-950/5 backdrop-blur-xl border-b border-white/10 dark:border-slate-800/20 transition-all duration-300;
+  }
+
+  /* Premium Shimmers & Micro-animations */
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+  }
+
+  @keyframes loading-shimmer {
+    0% { background-position: 120% 0; }
+    100% { background-position: -20% 0; }
+  }
+
+  .premium-btn {
+    @apply bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white shadow-lg shadow-primary-500/25 transition-all duration-500 ease-out active:scale-95 hover:shadow-primary-500/40;
+  }
+
+  /* Remove strong horizontal separators in dark mode; prefer spacing */
+  /* Remove visible section borders; use soft separators instead */
+  section[class*="border-y"], .section-separator {
+    border-top-width: 0 !important;
+    border-bottom-width: 0 !important;
+    background-image: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%);
+  }
+
+  .dark section[class*="border-y"], .dark .section-separator {
+    background-image: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%);
+  }
+
+  /* Soft shadow for premium components */
+  .shadow-premium {
+    box-shadow: 0 6px 30px -10px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15,23,42,0.04);
+  }
+
+  .dark .shadow-premium {
+    box-shadow: 0 8px 40px -10px rgba(2,6,23,0.6), 0 2px 8px -4px rgba(2,6,23,0.4);
+  }
+
+  /* Hero animations */
+  .animate-fade-in-up {
+    animation: fadeInUp 600ms cubic-bezier(.2,.9,.2,1) both;
+  }
+
+  .animate-hero-glow {
+    animation: heroGlow 2000ms ease-in-out infinite alternate;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes heroGlow {
+    from { filter: drop-shadow(0 6px 24px rgba(79,70,229,0.08)); }
+    to { filter: drop-shadow(0 18px 64px rgba(99,102,241,0.12)); }
+  }
+
+
+
+  /* Slight spotlight for recommendation cards */
+  .recommend-spotlight {
+    background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.12));
+    border: 1px solid rgba(99,102,241,0.08);
+  }
+}
