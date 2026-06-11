@@ -35,7 +35,7 @@ npm run dev
 ### 2. Frontend Configuration
 Navigate to `/frontend` and create a `.env` file:
 ```env
-VITE_API_URL=http://localhost:5001/api
+VITE_API_URL=https://staywiseai.onrender.com
 ```
 
 Run dependencies and start client:
