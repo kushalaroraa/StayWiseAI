@@ -17,6 +17,9 @@ if (
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 5000,
   });
   isEmailConfigured = true;
 }
@@ -50,7 +53,7 @@ export const sendBookingConfirmationEmail = async (booking, hotelName) => {
   const checkIn = new Date(booking.checkInDate).toLocaleDateString();
   const checkOut = new Date(booking.checkOutDate).toLocaleDateString();
   const subject = `StayWise.ai — Reservation Confirmed at ${hotelName}`;
-  
+
   const html = `
     <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
       <div style="text-align: center; margin-bottom: 24px;">

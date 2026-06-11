@@ -45,7 +45,13 @@ export const createOrder = async (req, res) => {
 // @route   POST /api/payments/verify
 // @access  Private
 export const verifyPayment = async (req, res) => {
-  const { bookingId, razorpayOrderId, razorpayPaymentId, razorpaySignature, paymentMethod } = req.body;
+  const {
+    bookingId,
+    razorpayOrderId,
+    razorpayPaymentId,
+    razorpaySignature,
+    paymentMethod
+  } = req.body;
 
   try {
     const booking = await Booking.findById(bookingId);
@@ -65,8 +71,11 @@ export const verifyPayment = async (req, res) => {
     );
 
     if (isSignatureValid) {
-      // Idempotency check: Ensure payment is not already processed
-      const existingPayment = await Payment.findOne({ transactionId: razorpayPaymentId });
+      // Idempotency check
+      const existingPayment = await Payment.findOne({
+        transactionId: razorpayPaymentId
+      });
+
       if (existingPayment) {
         return res.status(400).json({
           success: false,
@@ -74,7 +83,7 @@ export const verifyPayment = async (req, res) => {
         });
       }
 
-      // 1. Create Payment record
+      // Create Payment record
       const payment = await Payment.create({
         bookingId: booking._id,
         transactionId: razorpayPaymentId || `tx_mock_${Date.now()}`,
@@ -84,44 +93,58 @@ export const verifyPayment = async (req, res) => {
         rawGatewayResponse: req.body
       });
 
-      // 2. Update Booking record
+      // Update Booking
       booking.paymentStatus = 'paid';
       booking.status = 'confirmed';
       booking.paymentId = payment._id;
       await booking.save();
 
-      // 3. Update User booking history for SmartStay recommender
+      // Update User booking history
       await User.findByIdAndUpdate(booking.userId, {
-        $addToSet: { 
+        $addToSet: {
           bookingHistory: booking.hotelId.toString(),
           preferredLocations: hotel ? hotel.location : []
         }
       });
 
-      // 4. Send Confirmation Email
-      try {
-        await sendBookingConfirmationEmail(booking, hotelName);
-      } catch (emailErr) {
-        console.error('Failed to send booking confirmation email:', emailErr);
-      }
-
+      // SEND RESPONSE IMMEDIATELY
       res.json({
         success: true,
         message: 'Payment verified and booking confirmed successfully',
         booking
       });
-    } else {
-      // Update both statuses on failure — never leave a failed booking as 'pending'
-      booking.paymentStatus = 'failed';
-      booking.status = 'failed';
-      await booking.save();
 
-      res.status(400).json({
-        success: false,
-        message: 'Invalid payment signature. Payment verification failed.'
-      });
+      // SEND EMAIL IN BACKGROUND
+      sendBookingConfirmationEmail(booking, hotelName)
+        .then(() => {
+          console.log(`Booking confirmation email sent to ${booking.email}`);
+        })
+        .catch((emailErr) => {
+          console.error(
+            'Failed to send booking confirmation email:',
+            emailErr
+          );
+        });
+
+      return;
     }
+
+    // Payment verification failed
+    booking.paymentStatus = 'failed';
+    booking.status = 'failed';
+    await booking.save();
+
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid payment signature. Payment verification failed.'
+    });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Payment verification error:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
